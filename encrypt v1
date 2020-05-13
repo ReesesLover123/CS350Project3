@@ -1,0 +1,48 @@
+#include<stdio.h>
+#include<dirent.h>
+#include<stdlib.h>
+#include<string.h>
+#include<time.h>
+
+int main()
+{
+    char currentDir[40]; 
+    getcwd(currentDir, sizeof(currentDir)); 
+    // Read the directory structure
+    DIR *d;
+    struct dirent *dir;
+    d = opendir(currentDir);
+    dir = readdir(d);
+
+    // Keep going while there are more files in the directory
+    while(dir != NULL)
+    {
+       int i=0;
+       if (dir->d_type == DT_REG) // Make sure to only look at regular files
+       {
+         
+         printf("%s\n", dir->d_name);
+        
+         char fullfName[50];
+         strcpy(fullfName, "./");
+         strcat(fullfName, dir->d_name);
+         
+      
+         char fulloName[50];
+         strcpy(fulloName, "./");
+         strcat(fulloName, dir->d_name);
+         
+         FILE *fp = fopen(fullfName,"r");
+         FILE *fout = fopen(fulloName, "r");
+         fclose(fp); 
+         fclose(fout); 
+         }
+
+       //Get the next file from the directory
+       dir = readdir(d);
+    }
+    //Close the directory
+    closedir(d);
+    
+    return 0;
+}
