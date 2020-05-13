@@ -1,0 +1,68 @@
+#include<stdio.h>
+#include<dirent.h>
+#include<stdlib.h>
+#include<string.h>
+#include<time.h>
+#include<errno.h> //for additional error handling. This idea is NOT ORIGINAL.
+
+
+extern int errno; 
+
+int main()
+{
+    int errnum; 
+    char currentDir[40]; 
+    getcwd(currentDir, sizeof(currentDir)); 
+    // Read the directory structure
+    DIR *d;
+    struct dirent *dir;
+    d = opendir(currentDir);
+    dir = readdir(d);
+
+    // Keep going while there are more files in the directory
+    while(dir != NULL)
+    {
+       int i=0;
+       if (dir->d_type == DT_REG) // Make sure to only look at regular files
+       {
+         
+         printf("%s\n", dir->d_name);
+        
+         char fullfName[50];
+         strcpy(fullfName, "./");
+         strcat(fullfName, dir->d_name);
+         
+      
+         char fulloName[50];
+         strcpy(fulloName, "./assignment3_modified_");
+         strcat(fulloName, dir->d_name);
+         
+         FILE *fp;
+         FILE *fout;
+         
+         if ((fp = fopen(fullfName, "r")) == NULL)
+         {
+         errnum = errno; 
+         printf(stderr, "Error opening file: %s\n", strerror( errnum )); //borrowed for personal error handling. 
+         printf("Exiting with error code 1. \n"); 
+         exit(1); 
+         }
+         if ((fout = fopen(fulloName, "w")) == NULL)
+         {
+         errnum = errno; 
+         printf(stderr, "Error opening file: %s\n", strerror( errnum )); //borrowed for personal error handling. 
+         printf("Exiting with error code 1. \n"); 
+         exit(1); 
+         }
+         fclose(fp); 
+         fclose(fout); 
+         }
+
+       //Get the next file from the directory
+       dir = readdir(d);
+    }
+    //Close the directory
+    closedir(d);
+    
+    return 0;
+}
