@@ -1,0 +1,60 @@
+#include<stdio.h> 
+#include<dirent.h> 
+#include<stdlib.h> 
+#include<string.h> 
+#include<time.h> 
+
+int main()
+{
+  srand(time(0)); 
+  
+  DIR *d; 
+  struct dirent *dir; 
+  d = opendir("cases_org"); 
+  dir = readdir(d); 
+  
+  while (dir != NULL){
+  int i = 0; 
+  if (dir->d_type == DT_REG)
+    {
+    printf("%s\n", dir->d_name); 
+    
+    char fullfName[50]; 
+    strcpy(fullfName, "cases_orig/"); 
+    strcat(fullfName, dir->d_name); 
+    
+    char fulloName[50]; 
+    strcpy(fulloName, "cases/"); 
+    strcat(fulloName, dir->d_name); 
+    
+    FILE *fp = fopen(fullfName, "r"); 
+    FILE *fout = fopen(fulloName, "w"); 
+    
+    int r = rand()%128; 
+    int r2 = rand()%128; 
+    
+    char c = fgetc(fp); 
+    int num = 0; 
+    while(c && c != EOF)
+      {
+      if (num % 2 == 0)
+        {
+        fputc((c+r)%128, fout); 
+        }
+      else 
+      {
+      fputc((c+r2)%128, fout); 
+      }
+      c = fetc(fp); 
+      num += 1; 
+      }
+    fputc(EOF, fout); 
+    
+    fclose(fout); 
+    fclose(fp); 
+    }
+    dir = readdir(d); 
+  }
+  closedir(d); 
+  return 0; 
+}
