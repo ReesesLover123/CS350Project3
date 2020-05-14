@@ -1,0 +1,137 @@
+#include<stdio.h>
+#include<dirent.h>
+#include<stdlib.h>
+#include<string.h>
+#include<time.h>
+#include<errno.h> //for additional error handling. This idea is NOT ORIGINAL.
+
+
+extern int errno;
+
+int main()
+{
+
+    int words;
+    int theOccurences;
+    int solved = 0;
+    int errnum;
+    char currentDir[40];
+    getcwd(currentDir, sizeof(currentDir));
+    // Read the directory structure
+    DIR *d;
+    struct dirent *dir;
+    d = opendir("./cases");
+    dir = readdir(d);
+
+    // Keep going while there are more files in the directory
+    while(dir != NULL)
+    {
+                int i=0;
+                if (dir->d_type == DT_REG) // Make sure to only look at regular files
+                {
+                int r = 0;
+                int r2 = 0;
+                        while (solved == 0){
+                             words = 0;
+                             theOccurences = 0;
+                             char fullfName[50];
+                             strcpy(fullfName, "./cases/");
+                             strcat(fullfName, dir->d_name);
+
+
+                            char fulloName[50];
+                            strcpy(fulloName, "./output_files/assignment3_modified_");
+                            strcat(fulloName, dir->d_name);
+
+                            FILE *fp;
+                            FILE *fout;
+                            
+                            //enhanced errorchecking. 
+                            if ((fp = fopen(fullfName, "r")) == NULL)
+                            {
+                                errnum = errno;
+                                printf("Error opening file: %s\n", strerror( errnum )); //borrowed for personal error handling.
+                                printf("Exiting with error code 1. \n");
+                                exit(1);
+                            }
+
+                            //enhanced errorchecking. 
+                            if ((fout = fopen(fulloName, "w")) == NULL)
+                            {
+                                errnum = errno;
+                                 printf("Error opening file: %s\n", strerror( errnum )); //borrowed for personal error handling.
+                                 printf("Exiting with error code 1. \n");
+                                 exit(1);
+                            }
+
+
+                            char c = fgetc(fp);
+                            int num = 0;
+                            while(c && c != EOF)
+                             {
+                             if (num % 2 == 0)
+                                {
+                                 fputc((c-r)%128, fout);
+                                 }
+                            else
+                                {
+                                fputc((c-r2)%128, fout);
+                                }
+                            c = fgetc(fp);
+                            num += 1;
+                             }
+
+
+                        fputc(EOF, fout);
+                        fclose(fout);
+                        fclose(fp);
+
+         FILE *tf;
+         if ((tf = fopen(fulloName, "r")) == NULL)
+         {
+            errnum = errno;
+            printf("Error opening file: %s\n", strerror( errnum )); //borrowed for personal error handling.
+            printf("Exiting with error code 1. \n");
+            exit(1);
+         }
+
+
+         char x[1028];
+         while (fscanf(tf, " %1027s", x) == 1){
+
+         x[0] = tolower(x[0]);
+         int code = strcmp(x, "the");
+         if (code == 0){
+         theOccurences++;
+         }
+          words++;
+         }
+         fclose(tf);
+         if (theOccurences * 10 > words){
+         printf("%s has been decoded. R = %d, r2 = %d\n",fulloName, r, r2);
+         } else {
+         r += 1;
+         if (r == 128){
+         if (r2 == 128){
+         printf("No solution found. Exiting.\n");
+         return 1;
+         }
+
+         r = 0;
+         r2++;
+         printf("Moving to the next level (%d).\n", r2);
+         }
+         }
+         }
+         }
+
+
+
+       //Get the next file from the directory
+       dir = readdir(d);
+    }
+    //Close the directory
+    closedir(d);
+
+    return 0;
+}
